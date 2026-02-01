@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=银河麒麟软件安装助手
+Name[en_US]=Kylin Software Installer
+Comment=Install software packages on Kylin ARM64 systems
+Comment[en_US]=Install software packages on Kylin ARM64 systems
+Comment[zh_CN]=在银河麒麟ARM64系统上安装软件包
+Exec=kylin-software-installer
+Icon=kylin-software-installer
+Terminal=false
+Categories=System;Utility;
+Keywords=install;package;kylin;
+StartupNotify=true
