@@ -5,7 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -20,17 +20,44 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
-        cache: gradle
+    
+    # 检查项目结构（调试用，可删除）
+    - name: Check project structure
+      run: |
+        echo "=== 项目根目录内容 ==="
+        ls -la
+        echo "=== 查找gradlew文件 ==="
+        find . -name "gradlew" -type f 2>/dev/null || echo "未找到gradlew"
+        echo "=== 查找build.gradle文件 ==="
+        find . -name "build.gradle" -type f 2>/dev/null || echo "未找到build.gradle"
+    
+    # 如果没有gradlew，尝试用gradle wrapper生成
+    - name: Setup Gradle Wrapper if missing
+      run: |
+        if [ ! -f "./gradlew" ]; then
+          echo "gradlew不存在，尝试生成..."
+          if command -v gradle &> /dev/null; then
+            gradle wrapper
+          else
+            echo "未安装gradle，尝试安装..."
+            sudo apt-get update
+            sudo apt-get install -y gradle
+            gradle wrapper
+          fi
+        fi
     
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: chmod +x ./gradlew
     
     - name: Build with Gradle
-      run: ./gradlew assembleRelease
+      run: ./gradlew assembleRelease --stacktrace
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: app-release
-        path: app/build/outputs/apk/release/*.apk
+        path: |
+          app/build/outputs/apk/release/*.apk
+          */build/outputs/apk/release/*.apk
         retention-days: 30
+        if-no-files-found: warn
